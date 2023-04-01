@@ -1,3 +1,3 @@
 # @solely/bot
 
-work in progress :3
+A simple Discord bot written in TypeScript. WIP.

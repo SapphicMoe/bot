@@ -1,7 +1,7 @@
 {
   "name": "@solely/bot",
   "version": "1.0.0",
-  "description": "Discord bot :3",
+  "description": "A simple Discord bot written in TypeScript. WIP.",
   "license": "zlib",
   "private": true,
   "packageManager": "yarn@3.4.1",
