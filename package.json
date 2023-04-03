@@ -4,11 +4,10 @@
   "description": "A simple Discord bot written in TypeScript. WIP.",
   "license": "zlib",
   "private": true,
-  "packageManager": "yarn@3.4.1",
   "scripts": {
     "build": "yarn tsc -p .",
     "dev": "ts-node src/index.ts",
-    "start": "ts-node dist/src/index.js"
+    "start": "node dist/src/index.js"
   },
   "dependencies": {
     "@projectdysnomia/dysnomia": "^0.1.1",
