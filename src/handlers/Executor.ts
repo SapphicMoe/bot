@@ -2,7 +2,6 @@ import signale from 'signale';
 import { z } from 'zod';
 
 import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
 
 import { AbstractBot } from '../lib/Client';
 import { Command } from '../lib/Command';
@@ -26,9 +25,11 @@ const execute = async (
   if (!cleanContent) return;
 
   const [name, ...rawArgs] = cleanContent.split(' ');
-  const cmd = commands.get(name);
+  let cmd = commands.get(name);
 
+  if (!cmd) for (const c of client.commands.values()) if (c.aliases?.includes(name)) cmd = c;
   if (!cmd) return;
+
   let parsed: PromiseInner<ReturnType<typeof parse>>;
 
   try {
@@ -42,10 +43,10 @@ const execute = async (
   if (!((await cmd.preCheck?.(ctx)) ?? true)) return;
 
   try {
+    await cmd.run(ctx);
     signale.info(
       `${msg.author.username}#${msg.author.discriminator} (ID: ${msg.author.id}) ran command: ${cmd.name} (${cmd.category})`
     );
-    await cmd.run(ctx);
   } catch (err) {
     await (errorHandlers?.commandError ?? defaultErrorHandler)(msg, err, cmd);
   }
@@ -67,24 +68,26 @@ const defaultErrorHandler: ErrorHandler = async (msg, err, cmd) => {
   await msg.channel.createMessage('An error occured!');
 };
 
-export const loadCommands = async (client: AbstractBot) => {
-  const cmds = await readdir('./src/commands/');
+export const loadCommands = async (client: AbstractBot, directory: string) => {
+  const cmds = await readdir(directory);
 
   await Promise.all(
     cmds.map(async (cmd: string) => {
-      const { default: command } = await import(join(`../commands/${cmd}`));
+      if (process.env.NODE_ENV === 'production' && !cmd.endsWith('.js')) return;
+      const { default: command } = await import(`${directory}/${cmd}`);
 
       client.commands.set(command.name, command);
     })
   );
 };
 
-export const loadEvents = async (client: AbstractBot) => {
-  const events = await readdir('./src/events');
+export const loadEvents = async (client: AbstractBot, directory: string) => {
+  const events = await readdir(directory);
 
   await Promise.all(
     events.map(async (evt: string) => {
-      const event = await import(join(`../events/${evt}`));
+      if (process.env.NODE_ENV === 'production' && !evt.endsWith('.js')) return;
+      const event = await import(`${directory}/${evt}`);
 
       if (event.default.once) client.once(event.default.name, (...args) => event.default.execute(client, ...args));
       else client.on(event.default.name, (...args) => event.default.execute(client, ...args));

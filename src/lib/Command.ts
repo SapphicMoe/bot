@@ -7,6 +7,7 @@ import type { Context } from './Context';
 export interface Command<A extends z.AnyZodTuple, F extends z.AnyZodObject> {
   name: string;
   description: string;
+  aliases?: string[];
   args?: A;
   flags?: F;
   category: commandCategory;

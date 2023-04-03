@@ -1,7 +1,9 @@
 import { Client, ClientOptions } from '@projectdysnomia/dysnomia';
 import signale from 'signale';
 
-import { loadEvents, Commands } from '../handlers/Executor';
+import { join } from 'node:path';
+
+import { loadEvents, Commands, loadCommands } from '../handlers/Executor';
 
 export class AbstractBot extends Client {
   commands: Commands = new Map();
@@ -13,7 +15,8 @@ export class AbstractBot extends Client {
   }
 
   async init() {
-    await loadEvents(this);
+    await loadCommands(this, join(__dirname, '../commands'));
+    await loadEvents(this, join(__dirname, '../events'));
     await this.connect();
   }
 }
