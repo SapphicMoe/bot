@@ -29,5 +29,8 @@ COPY --from=build ["/app/node_modules", "./node_modules"]
 # Copy over the build from the last stage
 COPY --from=build ["/app/dist", "./dist"]
 
+# Set the environment to production
+ENV NODE_ENV=production
+
 # Execute the build
 CMD ["node", "dist/src/index.js"]
